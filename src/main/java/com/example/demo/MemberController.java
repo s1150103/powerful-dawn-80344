@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -23,8 +24,16 @@ public class MemberController {
 
     // メンバー登録
     @PostMapping
-    public Member create(@RequestBody MemberRequest req) {
-        return memberService.save(req);
+    public ResponseEntity<?> create(@RequestBody MemberRequest req) {
+        if ("PART_TIMER".equals(req.getType())) {
+            try {
+                Integer.parseInt(req.getExtra());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest()
+                    .body("weeklyHoursは数値で入力してください: " + req.getExtra());
+            }
+        }
+        return ResponseEntity.ok(memberService.save(req));
     }
 
     // 削除
